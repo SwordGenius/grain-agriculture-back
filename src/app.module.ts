@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { configDotenv } from 'dotenv';
+configDotenv();
+import { MongooseModule } from '@nestjs/mongoose';
+import { MovementModule } from './movement/movement.module';
+import * as process from 'node:process';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [MongooseModule.forRoot(process.env.MONGO_URI), MovementModule],
 })
 export class AppModule {}
