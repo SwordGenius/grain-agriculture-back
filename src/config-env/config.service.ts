@@ -6,7 +6,6 @@ export class ConfigEnvService {
   constructor(private configService: ConfigService) {}
 
   getTopic(): string {
-    console.log(this.configService.get<string>('MQTT_TOPIC'));
     return this.configService.get<string>('MQTT_TOPIC');
   }
 

@@ -1,6 +1,7 @@
 import {
   WebSocketGateway,
   WebSocketServer,
+  SubscribeMessage,
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -10,14 +11,18 @@ import { GrainSensor} from '../interfaces/grainSensor.interface';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../guards/auth.guard';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway(3002, {
+  cors: true,
+  namespace: 'grain-sensor',
+  transports: ['websocket'],
+})
 @UseGuards(JwtAuthGuard)
 export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   afterInit() {
-    console.log('WebSocket gateway initialized');
+    console.log('WebSocket Grain Sensor gateway initialized');
   }
 
   handleConnection(client: Socket) {
@@ -28,6 +33,10 @@ export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     console.log(`Client disconnected: ${client.id}`);
   }
   emitGrainSensorData(data: GrainSensor) {
+    this.server.emit('grainSensorData', data);
+  }
+  @SubscribeMessage('grainSensorData')
+  handleGrainSensorData(client: Socket, data: GrainSensor) {
     this.server.emit('grainSensorData', data);
   }
 }
