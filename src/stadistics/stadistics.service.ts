@@ -3,15 +3,21 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Stadistics } from './interfaces/stadistics.interface';
 import { CreateStadisticsDto } from './dto/create-stadistics.dto';
+import { StadisticsGateway } from './gateways/stadistics.gateway';
 
 @Injectable()
 export class StadisticsService {
-  constructor(@InjectModel('Stadistic') private readonly stadisticModel: Model<Stadistics>,
+  constructor(
+    @InjectModel('Stadistic')
+    private readonly stadisticModel: Model<Stadistics>,
+    private readonly stadisticGateway: StadisticsGateway,
   ) {}
 
   async create (createStadisticDto: CreateStadisticsDto): Promise<Stadistics> {
     const createdStadistic = new this.stadisticModel(createStadisticDto);
-    return createdStadistic.save();
+    const result = await createdStadistic.save();
+    this.stadisticGateway.emitStadisticsData(result);
+    return result;
   }
 
   async findAll(limit: number, page: number): Promise<Stadistics[]> {
