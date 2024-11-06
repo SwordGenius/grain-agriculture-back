@@ -29,7 +29,7 @@ export class UsersService {
     }
   }
 
-  async loginUser(email: string, password:string){
+  async loginUser(email: string, password: string): Promise<string> {
     try{
       const user = await this.userModel.findOne({email});  
       const isPasswordOk = await bcrypt.compare(password, user.password);
@@ -39,13 +39,11 @@ export class UsersService {
       }
 
       if(user && isPasswordOk){
-        const payload = {sub: user._id, email: user.email, name: user.name}
-        
-        return {
-          access_token: await this.jwtSvc.signAsync(payload)
-        };
+        const payload = { sub: user._id, email: user.email, name: user.name };
+
+        return await this.jwtSvc.signAsync(payload);
       }
-    }catch(error){
+    } catch (error: any) {
       
         throw new HttpException('Please check your credentials', HttpStatus.UNAUTHORIZED)
       

@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { StadisticsService } from './stadistics.service';
 import { CreateStadisticsDto } from './dto/create-stadistics.dto';
+import { JwtAuthGuard } from '../guards/auth.guard';
 
 @Controller('stadistics')
 export class StadisticsController {
@@ -9,6 +10,7 @@ export class StadisticsController {
   constructor(private readonly stadisticsService: StadisticsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createStadisticsDto: CreateStadisticsDto,
     @Res() res: Response,
@@ -26,6 +28,7 @@ export class StadisticsController {
   }
   
   @Get()
+  @UseGuards(JwtAuthGuard)
   async findAll(
     @Query('limit') limit: number,
     @Query('page') page: number,
@@ -70,6 +73,7 @@ export class StadisticsController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateStadisticsDto: CreateStadisticsDto,
@@ -91,6 +95,7 @@ export class StadisticsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async delete(
     @Param('id') id: string,
     @Res() res: Response,
