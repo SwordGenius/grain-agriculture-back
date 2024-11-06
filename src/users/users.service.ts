@@ -14,7 +14,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try{
-      const hashedPassword = await bcrypt.hash(createUserDto.password,10);
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
       const newUser = new this.userModel({
         ... createUserDto,
@@ -31,14 +31,17 @@ export class UsersService {
 
   async loginUser(email: string, password: string): Promise<string> {
     try{
-      const user = await this.userModel.findOne({email});  
+      const user = await this.userModel.findOne({ email });
       const isPasswordOk = await bcrypt.compare(password, user.password);
 
-      if (!isPasswordOk){
-        throw new HttpException('Please check your credentials', HttpStatus.UNAUTHORIZED)
+      if (!isPasswordOk) {
+        throw new HttpException(
+          'Please check your credentials',
+          HttpStatus.UNAUTHORIZED,
+        );
       }
 
-      if(user && isPasswordOk){
+      if (user && isPasswordOk) {
         const payload = { sub: user._id, email: user.email, name: user.name };
 
         return await this.jwtSvc.signAsync(payload);
