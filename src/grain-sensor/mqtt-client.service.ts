@@ -1,17 +1,23 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
 import { GrainSensorService } from './grain-sensor.service';
-import * as process from 'node:process'; // Servicio CRUD donde guardarás los datos
+import { ConfigEnvService } from '../config-env/config.service';
 
 @Injectable()
 export class MqttClientService implements OnModuleInit {
   private client: MqttClient;
-  private readonly topic = process.env.MQTT_TOPIC;
-  private readonly brokerUrl = process.env.MQTT_BROKER;
+  private topic: string;
+  private brokerUrl: string;
   private readonly logger = new Logger(MqttClientService.name);
 
-  constructor(private readonly sensorService: GrainSensorService) {}
+  constructor(
+    private readonly sensorService: GrainSensorService,
+    private readonly configEnv: ConfigEnvService
+  ) {}
+
   onModuleInit() {
+    this.topic = this.configEnv.getTopic();
+    this.brokerUrl = this.configEnv.getBroker();
     this.connectToBroker();
   }
 
@@ -38,7 +44,6 @@ export class MqttClientService implements OnModuleInit {
       this.handleMessage(topic, message.toString());
     });
   }
-
 
   private async handleMessage(topic: string, message: string) {
     this.logger.log(`Received message from ${topic}: ${message}`);

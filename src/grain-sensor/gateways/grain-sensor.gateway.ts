@@ -7,8 +7,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GrainSensor} from '../interfaces/grainSensor.interface';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../guards/auth.guard';
 
 @WebSocketGateway({ cors: true })
+@UseGuards(JwtAuthGuard)
 export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;

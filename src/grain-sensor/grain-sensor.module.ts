@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GrainSensorSchema } from './schemas/grainSensor.schema';
 import { MqttClientService } from './mqtt-client.service';
 import { SensorGateway } from './gateways/grain-sensor.gateway';
+import { ConfigEnvService } from '../config-env/config.service';
 
 @Module({
   imports: [
@@ -12,8 +13,13 @@ import { SensorGateway } from './gateways/grain-sensor.gateway';
       { name: 'GrainSensor', schema: GrainSensorSchema },
     ]),
   ],
-  providers: [GrainSensorService, MqttClientService, SensorGateway],
+  providers: [
+    GrainSensorService,
+    MqttClientService,
+    SensorGateway,
+    ConfigEnvService,
+  ],
   controllers: [GrainSensorController],
-  exports: [GrainSensorService, MqttClientService],
+  exports: [GrainSensorService, MqttClientService, ConfigEnvService],
 })
 export class GrainSensorModule {}
