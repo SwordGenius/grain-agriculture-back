@@ -3,21 +3,25 @@ import {
   WebSocketServer,
   OnGatewayInit,
   OnGatewayConnection,
-  OnGatewayDisconnect,
+  OnGatewayDisconnect, SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Stadistics} from '../interfaces/stadistics.interface';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../guards/auth.guard';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway(3002, {
+  cors: true,
+  namespace: 'stadistics',
+  transports: ['websocket'],
+})
 @UseGuards(JwtAuthGuard)
 export class StadisticsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   afterInit() {
-    console.log('WebSocket gateway initialized');
+    console.log('WebSocket Stadistics gateway initialized');
   }
 
   handleConnection(client: Socket) {
@@ -28,6 +32,10 @@ export class StadisticsGateway implements OnGatewayInit, OnGatewayConnection, On
     console.log(`Client disconnected: ${client.id}`);
   }
   emitStadisticsData(data: Stadistics) {
+    this.server.emit('stadisticsData', data);
+  }
+  @SubscribeMessage('stadisticsData')
+  handleStadisticsData(client: Socket, data: Stadistics) {
     this.server.emit('stadisticsData', data);
   }
 }
