@@ -10,10 +10,9 @@ configDotenv();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Habilitar CORS
   app.enableCors({
     origin: 'http://localhost:5173',
-    credentials: true, 
+    credentials: true,
   });
 
   app.use(cookieParser());
