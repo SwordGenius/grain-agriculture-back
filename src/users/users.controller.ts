@@ -19,7 +19,7 @@ export class UsersController {
     @Res() res: Response,
   ): Promise<Response> {
     const { email, password } = createUserDto
-    const token = this.usersService.loginUser(email, password);
+    const token = await this.usersService.loginUser(email, password);
     res.cookie('access_token', token, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 30,

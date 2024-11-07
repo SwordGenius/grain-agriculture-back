@@ -37,7 +37,8 @@ export class UsersService {
       return { success: false, message: 'An unexpected error occurred during registration. Please try again later.' };
     }
   }
-  
+
+
 
   
   async loginUser(email: string, password: string): Promise<{ success: boolean, token?: string, message?: string }> {
