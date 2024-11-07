@@ -43,8 +43,7 @@ export class UsersService {
 
       if (user && isPasswordOk) {
         const payload = { sub: user._id, email: user.email, name: user.name };
-
-        return await this.jwtSvc.signAsync(payload);
+        return this.jwtSvc.sign(payload);
       }
     } catch (error: any) {
       

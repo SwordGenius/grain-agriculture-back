@@ -25,6 +25,7 @@ export class MqttClientService implements OnModuleInit {
     this.client = connect(this.brokerUrl);
 
     this.client.on('connect', () => {
+      console.log('Connected to MQTT broker');
       this.logger.log('Connected to MQTT broker');
 
       this.client.subscribe(this.topic, (err) => {
@@ -41,6 +42,8 @@ export class MqttClientService implements OnModuleInit {
     });
 
     this.client.on('message', (topic, message) => {
+      console.log('Received message from topic: ', topic);
+      console.log('Message: ', message.toString());
       this.handleMessage(topic, message.toString());
     });
   }
@@ -50,7 +53,12 @@ export class MqttClientService implements OnModuleInit {
     try {
       let data = JSON.parse(message);
       data = {
-        ...data,
+        temperature_inside: data.temperaturaInterna,
+        temperature_outside: data.temperaturaDHT,
+        humidity: data.humedadDHT,
+        gas: data.valorGas,
+        movement_1: data.sensorVibracion1,
+        movement_2: data.sensorVibracion2,
         date: new Date(),
       };
       await this.sensorService.create(data);
