@@ -61,7 +61,8 @@ export class MqttClientService implements OnModuleInit {
         movement_2: data.sensorVibracion2,
         date: new Date(),
       };
-      await this.sensorService.create(data);
+      if (data.date.getMinutes() === 0 && data.date.getSeconds() === 0)
+        await this.sensorService.create(data);
       this.logger.log('Sensor data saved to database');
     } catch (error) {
       this.logger.error(`Failed to handle message: ${error.message}`);
