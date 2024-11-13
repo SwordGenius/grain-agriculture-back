@@ -15,8 +15,13 @@ export class GrainSensorService {
 
   async create(createGrainSensor: CreateGrainSensorDto) : Promise<GrainSensor> {
     const createdGrainSensor = new this.grainSensorModel(createGrainSensor);
-    const result = await createdGrainSensor.save();
-    this.grainSensorGateway.emitGrainSensorData(result);
+    let result: GrainSensor;
+    if (
+      createGrainSensor.date.getMinutes() === 0 &&
+      createGrainSensor.date.getSeconds() === 0
+    )
+      result = await createdGrainSensor.save();
+    this.grainSensorGateway.emitGrainSensorData(createGrainSensor);
     return result;
   }
 
