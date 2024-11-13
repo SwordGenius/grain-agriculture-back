@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
 import { GrainSensorService } from './grain-sensor.service';
 import { ConfigEnvService } from '../config-env/config.service';
+import { SensorGateway } from './gateways/grain-sensor.gateway';
 
 @Injectable()
 export class MqttClientService implements OnModuleInit {
@@ -12,7 +13,8 @@ export class MqttClientService implements OnModuleInit {
 
   constructor(
     private readonly sensorService: GrainSensorService,
-    private readonly configEnv: ConfigEnvService
+    private readonly configEnv: ConfigEnvService,
+    private readonly sensorGateway: SensorGateway,
   ) {}
 
   onModuleInit() {
@@ -61,7 +63,9 @@ export class MqttClientService implements OnModuleInit {
         movement_2: data.sensorVibracion2,
         date: new Date(),
       };
-      await this.sensorService.create(data);
+      this.sensorGateway.emitGrainSensorData(data);
+      if (data.date.getMinutes() === 0 && data.date.getSeconds() === 0)
+        await this.sensorService.create(data);
       this.logger.log('Sensor data saved to database');
     } catch (error) {
       this.logger.error(`Failed to handle message: ${error.message}`);

@@ -3,21 +3,17 @@ import { GrainSensor } from './interfaces/grainSensor.interface';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateGrainSensorDto } from './dto/create-grain-sensor.dto';
-import { SensorGateway} from './gateways/grain-sensor.gateway';
 
 @Injectable()
 export class GrainSensorService {
   constructor(
     @InjectModel('GrainSensor')
     private readonly grainSensorModel: Model<GrainSensor>,
-    private readonly grainSensorGateway: SensorGateway,
   ) {}
 
   async create(createGrainSensor: CreateGrainSensorDto) : Promise<GrainSensor> {
     const createdGrainSensor = new this.grainSensorModel(createGrainSensor);
-    const result = await createdGrainSensor.save();
-    this.grainSensorGateway.emitGrainSensorData(result);
-    return result;
+    return await createdGrainSensor.save();
   }
 
   async findAll(limit: number, skip: number): Promise<GrainSensor[]> {
