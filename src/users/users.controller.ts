@@ -13,19 +13,33 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Post('login')
+   @Post('login')
   async login(
     @Body() createUserDto: CreateUserDto,
     @Res() res: Response,
   ): Promise<Response> {
-    const { email, password } = createUserDto
-    const token = await this.usersService.loginUser(email, password);
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 30,
+    const { email, password } = createUserDto;
+    const result = await this.usersService.loginUser(email, password);
+    
+    if (result.success && result.token) {
+      res.cookie('access_token', result.token, {
+        httpOnly: true,
+        secure: false, // cmodificar esto a true cuando se suba a produccion adrian es @#@$@@
+        sameSite: 'lax',  
+        maxAge: 1000 * 60 * 60 
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'Login successful'
+      });
+    }
+    
+    return res.status(401).json({
+      success: false,
+      message: result.message
     });
-    return res.status(201).json(token);
   }
+
   @Post('logout')
   async logout(@Res() res: Response): Promise<Response> {
     res.clearCookie('access_token');

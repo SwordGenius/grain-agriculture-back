@@ -47,24 +47,18 @@ export class GrainSensorController {
         limitValue,
         pageValue,
       );
-      const data = {
-        message: 'GrainSensor has been found successfully',
+      return res.status(200).json({
+        message: 'GrainSensor data retrieved successfully',
         data: grainSensors,
-      };
-
-      if (grainSensors.length === 0) {
-        return res.status(404).json({
-          message: 'GrainSensor not found',
-        });
-      }
-      return res.status(200).json(data);
+      });
     } catch (error) {
       return res.status(500).json({
-        message: 'Error: GrainSensor not found',
+        message: 'Error retrieving GrainSensor data',
         error: error.message,
       });
     }
   }
+
 
   @Get(':id')
   async findOne(

@@ -8,12 +8,12 @@ import * as process from 'node:process';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-          jwtFromRequest: ExtractJwt.fromExtractors([(req: Request) => {
-              return req?.cookies?.access_token;
-          } ]),
-          ignoreExpiration: false,
-          secretOrKey: process.env.JWT_SECRET,
-      });
+      jwtFromRequest: ExtractJwt.fromExtractors([(req: Request) => {
+        return req?.cookies?.access_token;
+      }]),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET,
+    });
   }
 
   async validate(payload: any) {
