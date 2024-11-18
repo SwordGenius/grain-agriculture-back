@@ -20,6 +20,6 @@ import { StatisticsUtil } from './statistics.util';
     ZTableUtil,
     StatisticsUtil
   ],
-  exports: [StatisticsService] // Por si necesitas usar el servicio en otros módulos
+  exports: [StatisticsService] 
 })
 export class StatisticsModule {}

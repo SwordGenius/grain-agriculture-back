@@ -11,14 +11,13 @@ export class MovementAnalysisService {
   ) {}
 
   async analyzeMovements() {
-    // Obtener datos de la última semana
+
     const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const data = await this.grainSensorModel
       .find({ date: { $gte: lastWeek } })
       .sort({ date: 1 })
       .exec();
 
-    // Verificar si hay datos
     if (!data || data.length === 0) {
       return {
         message: "No hay datos suficientes para realizar el análisis",
@@ -48,17 +47,17 @@ export class MovementAnalysisService {
       totalReadings: data.length
     };
 
-    // Contar movimientos totales
+    
     data.forEach(reading => {
       if (reading?.movement_1) dailyMovements.movement1++;
       if (reading?.movement_2) dailyMovements.movement2++;
     });
 
-    // Calcular frecuencias
+
     const movement1Frequency = (dailyMovements.movement1 / dailyMovements.totalReadings) * 100;
     const movement2Frequency = (dailyMovements.movement2 / dailyMovements.totalReadings) * 100;
     
-    // Analizar patrones secuenciales
+ 
     const sequentialPatterns = this.analyzeSequentialPatterns(data);
 
     return {
@@ -109,7 +108,7 @@ export class MovementAnalysisService {
       };
     }
 
-    // Obtener los últimos estados
+    
     const lastReading = data[data.length - 1];
     if (!lastReading) {
       return {
@@ -124,7 +123,7 @@ export class MovementAnalysisService {
     const lastMovement1 = lastReading.movement_1 || false;
     const lastMovement2 = lastReading.movement_2 || false;
 
-    // Evitar división por cero
+  
     const movement1Count = weeklyAnalysis.movement1.count || 1;
     const movement2Count = weeklyAnalysis.movement2.count || 1;
 
