@@ -5,6 +5,7 @@ import { GrainSensor } from '../grain-sensor/interfaces/grainSensor.interface';
 import { Statistics, Limits } from './interfaces/statistics.interface';
 import { ZTableUtil } from './z-table.util';
 import { StatisticsUtil } from './statistics.util';
+import { MovementPredictionUtil} from './movement-prediction.util';
 
 @Injectable()
 export class StatisticsService {
@@ -19,6 +20,10 @@ export class StatisticsService {
     private readonly grainSensorModel: Model<GrainSensor>,
   ) {
     ZTableUtil.initialize();
+  }
+  async predictMovement(): Promise<number> {
+    const data = await this.grainSensorModel.find().exec();
+    return MovementPredictionUtil.predictMovement(data);
   }
 
   async calculateStatistics(): Promise<{ stats: Statistics; limits: Limits }> {

@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StatisticsController } from './statistics.controller';
 import { StatisticsService } from './statistics.service';
-import { MovementAnalysisService } from './analysis.service';
 import { GrainSensorSchema } from '../grain-sensor/schemas/grainSensor.schema';
 import { ZTableUtil } from './z-table.util';
 import { StatisticsUtil } from './statistics.util';
@@ -16,7 +15,6 @@ import { StatisticsUtil } from './statistics.util';
   controllers: [StatisticsController],
   providers: [
     StatisticsService,
-    MovementAnalysisService,
     ZTableUtil,
     StatisticsUtil
   ],
