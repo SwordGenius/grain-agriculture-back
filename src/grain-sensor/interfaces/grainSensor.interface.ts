@@ -4,7 +4,7 @@ export interface GrainSensor extends Document {
   readonly temperature_inside: number;
   readonly temperature_outside: number;
   readonly humidity: number;
-  readonly gas: string;
+  readonly gas: number;
   readonly date: Date;
   readonly movement_1: boolean;
   readonly movement_2: boolean;

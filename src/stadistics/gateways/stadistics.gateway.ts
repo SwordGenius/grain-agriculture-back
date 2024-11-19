@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Stadistics} from '../interfaces/stadistics.interface';
 import { UseGuards } from '@nestjs/common';
+import { UserGuard } from '../../users/guards/user.guard';
 
 
 @WebSocketGateway(3002, {
@@ -15,6 +16,7 @@ import { UseGuards } from '@nestjs/common';
   namespace: 'stadistics',
   transports: ['websocket'],
 })
+@UseGuards(UserGuard)
 
 export class StadisticsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

@@ -1,17 +1,23 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { StadisticsSchema } from './schemas/stadistics.schema';
-import { StadisticsController } from './stadistics.controller';
-import { StadisticsService } from './stadistics.service';
-import { StadisticsGateway } from './gateways/stadistics.gateway';
-import { UsersModule } from '../users/users.module';
+import { StatisticsController } from './stadistics.controller';
+import { StatisticsService } from './stadistics.service';
+import { GrainSensorSchema } from '../grain-sensor/schemas/grainSensor.schema';
+import { ZTableUtil } from './z-table.util';
+import { StatisticsUtil } from './statistics.util';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Stadistic', schema: StadisticsSchema }]),
-    UsersModule,
+    MongooseModule.forFeature([
+      { name: 'GrainSensor', schema: GrainSensorSchema }
+    ])
   ],
-  controllers: [StadisticsController],
-  providers: [StadisticsService, StadisticsGateway]
+  controllers: [StatisticsController],
+  providers: [
+    StatisticsService,
+    ZTableUtil,
+    StatisticsUtil
+  ],
+  exports: [StatisticsService]
 })
 export class StadisticsModule {}
