@@ -1,11 +1,13 @@
 import { UserDocument } from './entities/user.entity';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/entities/user.entity';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
+import { ConfigEnvService } from '../config-env/config.service';
+
 
 @Injectable()
 export class UsersService {
@@ -13,7 +15,7 @@ export class UsersService {
 
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private jwtSvc: JwtService,
+    private configService: ConfigEnvService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<{ success: boolean, user?: User, message?: string }> {
@@ -41,7 +43,10 @@ export class UsersService {
 
 
   
-  async loginUser(email: string, password: string): Promise<{ success: boolean, token?: string, message?: string }> {
+  async loginUser(
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; token?: string; message?: string }> {
     try {
       const user = await this.userModel.findOne({ email });
       if (!user) {
@@ -59,12 +64,19 @@ export class UsersService {
       this.logger.log(`User logged in: ${user.email}, Name: ${user.name}`);
   
       const payload = { sub: user._id, email: user.email, name: user.name };
-      const token = await this.jwtSvc.signAsync(payload);
+
+      const token = jwt.sign(payload, this.configService.getSecret(), {
+        expiresIn: '2h',
+      });
       return { success: true, token };
     } catch (error) {
       this.logger.error('Error during user login:', error);
       return { success: false, message: 'An unexpected error occurred. Please try again later.' };
     }
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    return this.userModel.findById(id);
   }
   
   

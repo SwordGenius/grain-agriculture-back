@@ -8,20 +8,22 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../guards/auth.guard';
+
 import { CreateGrainSensorDto } from '../dto/create-grain-sensor.dto';
+import { UserGuard } from '../../users/guards/user.guard';
 
 @WebSocketGateway(3002, {
   cors: true,
   namespace: 'grain-sensor',
   transports: ['websocket'],
 })
-@UseGuards(JwtAuthGuard)
+@UseGuards(UserGuard)
 export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  afterInit() {
+  afterInit(client: Socket) {
+
     console.log('WebSocket Grain Sensor gateway initialized');
   }
 

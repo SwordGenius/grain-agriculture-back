@@ -2,15 +2,16 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res, UseGuards 
 import { Response } from 'express';
 import { StadisticsService } from './stadistics.service';
 import { CreateStadisticsDto } from './dto/create-stadistics.dto';
-import { JwtAuthGuard } from '../guards/auth.guard';
+import { UserGuard } from '../users/guards/user.guard';
+import { PublicAccess } from '../users/decorators/public.decorator';
 
 @Controller('stadistics')
+@UseGuards(UserGuard)
 export class StadisticsController {
 
   constructor(private readonly stadisticsService: StadisticsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createStadisticsDto: CreateStadisticsDto,
     @Res() res: Response,
@@ -28,7 +29,6 @@ export class StadisticsController {
   }
   
   @Get()
-  @UseGuards(JwtAuthGuard)
   async findAll(
     @Query('limit') limit: number,
     @Query('page') page: number,
@@ -53,6 +53,7 @@ export class StadisticsController {
   }
 
   @Get(':id')
+  @PublicAccess()
   async findOne(
     @Param('id') id: string,
     @Res() res: Response,
@@ -73,7 +74,6 @@ export class StadisticsController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateStadisticsDto: CreateStadisticsDto,
@@ -95,7 +95,6 @@ export class StadisticsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   async delete(
     @Param('id') id: string,
     @Res() res: Response,

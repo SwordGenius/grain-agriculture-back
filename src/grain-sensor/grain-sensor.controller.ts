@@ -2,16 +2,17 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res, UseGuards 
 import { GrainSensorService } from './grain-sensor.service';
 import { CreateGrainSensorDto } from './dto/create-grain-sensor.dto';
 import { Response } from 'express';
-import { JwtAuthGuard } from '../guards/auth.guard';
+import { UserGuard } from '../users/guards/user.guard';
+import { PublicAccess } from '../users/decorators/public.decorator';
 
 @Controller('grain-sensor')
+@UseGuards(UserGuard)
 export class GrainSensorController {
   constructor(private readonly grainSensorService: GrainSensorService) {
 
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(@Res() res: Response, @Body() createGrainSensorDto: CreateGrainSensorDto) {
     try {
       const grainSensor = await this.grainSensorService.create(createGrainSensorDto);
@@ -34,7 +35,6 @@ export class GrainSensorController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async findAll(
     @Res() res: Response,
     @Query('limit') limit: string,
@@ -67,6 +67,7 @@ export class GrainSensorController {
   }
 
   @Get(':id')
+  @PublicAccess()
   async findOne(
     @Res() res: Response,
     @Param('id') id: string,
@@ -92,7 +93,6 @@ export class GrainSensorController {
   }
   
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
   async update(
     @Res() res: Response,
     @Param('id') id: string,
@@ -122,7 +122,6 @@ export class GrainSensorController {
   }
   
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   async delete(
     @Res() res: Response,
     @Param('id') id: string,

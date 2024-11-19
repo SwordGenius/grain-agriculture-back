@@ -19,6 +19,7 @@ export class UsersController {
     @Res() res: Response,
   ): Promise<Response> {
     const { email, password } = createUserDto
+    console.log(email, password);
     const token = await this.usersService.loginUser(email, password);
     res.cookie('access_token', token, {
       httpOnly: true,

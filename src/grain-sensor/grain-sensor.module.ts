@@ -6,12 +6,14 @@ import { GrainSensorSchema } from './schemas/grainSensor.schema';
 import { MqttClientService } from './mqtt-client.service';
 import { SensorGateway } from './gateways/grain-sensor.gateway';
 import { ConfigEnvService } from '../config-env/config.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'GrainSensor', schema: GrainSensorSchema },
     ]),
+    UsersModule
   ],
   providers: [
     GrainSensorService,
