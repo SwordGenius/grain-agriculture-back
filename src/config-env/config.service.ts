@@ -12,4 +12,12 @@ export class ConfigEnvService {
   getBroker(): string {
     return this.configService.get<string>('MQTT_BROKER');
   }
+
+  getPort(): number {
+    return this.configService.get<number>('PORT');
+  }
+
+  getSecret(): string {
+    return this.configService.get<string>('JWT_SECRET');
+  }
 }

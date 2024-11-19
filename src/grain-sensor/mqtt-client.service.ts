@@ -27,7 +27,6 @@ export class MqttClientService implements OnModuleInit {
     this.client = connect(this.brokerUrl);
 
     this.client.on('connect', () => {
-      console.log('Connected to MQTT broker');
       this.logger.log('Connected to MQTT broker');
 
       this.client.subscribe(this.topic, (err) => {
