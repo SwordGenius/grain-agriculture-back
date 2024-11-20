@@ -11,6 +11,7 @@ import { UseGuards } from '@nestjs/common';
 
 import { CreateGrainSensorDto } from '../dto/create-grain-sensor.dto';
 import { UserGuard } from '../../users/guards/user.guard';
+import { WsMiddleware } from '../../middlewares/auth.middleware';
 
 @WebSocketGateway(3002, {
   cors: true,
@@ -22,12 +23,13 @@ export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @WebSocketServer()
   server: Server;
 
-  afterInit(client: Socket) {
+  afterInit() {
 
     console.log('WebSocket Grain Sensor gateway initialized');
   }
 
   handleConnection(client: Socket) {
+    WsMiddleware(client);
     console.log(`Client connected: ${client.id}`);
   }
 

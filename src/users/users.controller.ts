@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Response } from 'express';
+import { UserGuard } from './guards/user.guard';
 
 @Controller('users')
 export class UsersController {
@@ -31,6 +32,14 @@ export class UsersController {
   async logout(@Res() res: Response): Promise<Response> {
     res.clearCookie('access_token');
     return res.status(HttpStatus.OK).json({ message: 'Logged out successfully' });
+  }
+  
+  @Get('check-auth')
+  @UseGuards(UserGuard)
+  async checkAuth(@Res() res: Response): Promise<Response> {
+    return res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: 'Usuario autenticado' });
   }
  
 }

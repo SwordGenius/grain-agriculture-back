@@ -7,12 +7,10 @@ import { UnauthorizedException } from '@nestjs/common';
 
 export const getToken = (token: string) => {
   try {
-    console.log(token);
     const payload: JwtPayload | string = jwt.verify(
       token,
       process.env.JWT_SECRET!,
     );
-    console.log(payload);
     if (payload === 'jwt expired') {
       return 'Token expirado';
     }
@@ -27,32 +25,28 @@ export const getToken = (token: string) => {
 
 export const getTokenWs = (client: Socket) => {
   try {
-    const token = client.handshake.headers['cookie'].split('=')[1];
-    console.log(token);
+    const token = client.handshake.headers['cookie'].split('=')[1] as string;
     const payload: JwtPayload | string = jwt.verify(
       token,
       process.env.JWT_SECRET!,
     );
-    console.log(payload);
     if (payload === 'jwt expired') {
-      return 'Token expirado';
+      client.disconnect();
     }
     if (payload === 'invalid token') {
-      return 'Token inválido';
+      client.disconnect()
     }
-    return payload;
+    
   } catch (error) {
-    throw new UnauthorizedException(error);
+    client.disconnect();
+    throw new UnauthorizedException('No token provided', error);
   }
 }
 
-export const WsMiddleware = async () => {
-  return async (client: Socket, next: (err?: Error) => void) => {
-    try {
-      getTokenWs(client);
-      next();
-    } catch (error) {
-      next(new Error(error));
-    }
+export const WsMiddleware = (client: Socket) => {
+  try {
+    getTokenWs(client);
+  } catch (error) {
+    throw new UnauthorizedException('No token provided', error);
   }
 }
