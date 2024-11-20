@@ -1,8 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import { JwtPayload } from 'jsonwebtoken';
 import { Socket } from 'socket.io';
-import { UnauthorizedException } from '@nestjs/common';
-
 
 
 export const getToken = (token: string) => {
@@ -39,7 +37,7 @@ export const getTokenWs = (client: Socket) => {
     
   } catch (error) {
     client.disconnect();
-    throw new UnauthorizedException('No token provided', error);
+    console.log(error);
   }
 }
 
@@ -47,6 +45,7 @@ export const WsMiddleware = (client: Socket) => {
   try {
     getTokenWs(client);
   } catch (error) {
-    throw new UnauthorizedException('No token provided', error);
+    client.disconnect()
+    console.log(error);
   }
 }
