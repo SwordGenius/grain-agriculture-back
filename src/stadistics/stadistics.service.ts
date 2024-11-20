@@ -4,7 +4,8 @@ import { Stadistics, Limits } from './interfaces/stadistics.interface';
 import { ZTableUtil } from './z-table.util';
 import { StatisticsUtil } from './statistics.util';
 import { MovementPredictionUtil } from './movement-prediction.util';
-import { GrainSensorService } from '../grain-sensor/grain-sensor.service';
+import { Model } from 'mongoose';
+import { GrainSensor } from '../grain-sensor/interfaces/grainSensor.interface';
 
 @Injectable()
 export class StatisticsService {
@@ -16,17 +17,19 @@ export class StatisticsService {
 
   constructor(
     @InjectModel('GrainSensor')
-    private readonly grainSensorService: GrainSensorService,
+    private readonly grainSensorModel: Model<GrainSensor>,
   ) {
     ZTableUtil.initialize();
   }
   async predictMovement(): Promise<number> {
-    const data = await this.grainSensorService.findAll(0, 0);
+    const data = await this.grainSensorModel.find().exec();
     return MovementPredictionUtil.predictMovement(data);
   }
 
   async calculateStatistics(): Promise<{ stats: Stadistics; limits: Limits }> {
-    const data = await this.grainSensorService.findAll(0, 0);
+    const data = await this.grainSensorModel.find().exec();
+
+
 
     const temperaturesOutside = data.map(record => record.temperature_outside);
     const temperaturesInside = data.map(record => record.temperature_inside);
