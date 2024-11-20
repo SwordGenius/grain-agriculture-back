@@ -13,7 +13,7 @@ import { UserGuard } from '../../users/guards/user.guard';
 
 @WebSocketGateway(3002, {
   cors: true,
-  namespace: 'stadistics',
+  namespace: 'wss-stadistics',
   transports: ['websocket'],
 })
 @UseGuards(UserGuard)

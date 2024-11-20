@@ -15,7 +15,7 @@ import { WsMiddleware } from '../../middlewares/auth.middleware';
 
 @WebSocketGateway(3002, {
   cors: true,
-  namespace: 'grain-sensor',
+  namespace: 'wss-grain-sensor',
   transports: ['websocket'],
 })
 @UseGuards(UserGuard)
