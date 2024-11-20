@@ -23,7 +23,8 @@ export const getToken = (token: string) => {
 
 export const getTokenWs = (client: Socket) => {
   try {
-    const token = client.handshake.headers['cookie'].split('=')[1] as string;
+    const token = client.handshake.headers['cookie'].split('%22')[5] as string;
+    console.log(token);
     const payload: JwtPayload | string = jwt.verify(
       token,
       process.env.JWT_SECRET!,
