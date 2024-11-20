@@ -13,9 +13,9 @@ import { CreateGrainSensorDto } from '../dto/create-grain-sensor.dto';
 import { UserGuard } from '../../users/guards/user.guard';
 import { WsMiddleware } from '../../middlewares/auth.middleware';
 
-@WebSocketGateway({
+@WebSocketGateway( 3002,{
   cors: true,
-  namespace: 'grain-sensor',
+  namespace: 'ws-grain-sensor',
   transports: ['websocket'],
 })
 @UseGuards(UserGuard)
