@@ -13,7 +13,7 @@ import { CreateGrainSensorDto } from '../dto/create-grain-sensor.dto';
 import { UserGuard } from '../../users/guards/user.guard';
 import { WsMiddleware } from '../../middlewares/auth.middleware';
 
-@WebSocketGateway(3002, {
+@WebSocketGateway({
   cors: true,
   namespace: 'wss-grain-sensor',
   transports: ['websocket'],

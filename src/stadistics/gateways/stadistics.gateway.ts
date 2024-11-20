@@ -11,7 +11,7 @@ import { UseGuards } from '@nestjs/common';
 import { UserGuard } from '../../users/guards/user.guard';
 
 
-@WebSocketGateway(3002, {
+@WebSocketGateway({
   cors: true,
   namespace: 'wss-stadistics',
   transports: ['websocket'],
