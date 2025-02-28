@@ -24,7 +24,38 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository for a grain agriculture monitoring system.
+
+## Docker MongoDB Setup
+
+This project includes Docker configuration to simplify MongoDB setup for development. This way, team members don't need to install MongoDB locally.
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Starting MongoDB with Docker
+
+```bash
+# Start MongoDB and Mongo Express
+$ docker-compose up -d
+```
+
+This will start:
+- MongoDB database accessible on localhost:27017
+- Mongo Express admin interface accessible at http://localhost:8081
+
+### Environment Setup
+
+Create a `.env` file in the root directory with:
+
+```
+MONGO_URI=mongodb://localhost:27017/graindb
+MQTT_BROKER=mqtt://Grain-Agriculture@broker.emqx.io
+MQTT_TOPIC=SalidaGrain201234/01
+JWT_SECRET=hola
+PORT=3000
+```
 
 ## Project setup
 
@@ -56,6 +87,30 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+```
+
+## MongoDB Troubleshooting
+
+### Check container status
+```bash
+$ docker-compose ps
+```
+
+### View MongoDB logs
+```bash
+$ docker logs grain-mongodb
+```
+
+### Reset MongoDB data
+```bash
+# Stop containers
+$ docker-compose down
+
+# Remove volume
+$ docker volume rm swordgenius-grain-agriculture-back_mongodb_data
+
+# Start containers again
+$ docker-compose up -d
 ```
 
 ## Resources

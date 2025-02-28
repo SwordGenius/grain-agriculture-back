@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Servicio de MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: grain-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: graindb
+    networks:
+      - grain-network
+
+  # Herramienta de administración web para MongoDB (opcional)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: grain-mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+    depends_on:
+      - mongodb
+    networks:
+      - grain-network
+
+networks:
+  grain-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
