@@ -1,3 +1,4 @@
+// src/grain-sensor/grain-sensor.module.ts
 import { Module } from '@nestjs/common';
 import { GrainSensorService } from './grain-sensor.service';
 import { GrainSensorController } from './grain-sensor.controller';
@@ -7,13 +8,15 @@ import { MqttClientService } from './mqtt-client.service';
 import { SensorGateway } from './gateways/grain-sensor.gateway';
 import { ConfigEnvService } from '../config-env/config.service';
 import { UsersModule } from '../users/users.module';
+import { ConcurrencyModule } from '../common/concurrency/concurrency.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'GrainSensor', schema: GrainSensorSchema },
     ]),
-    UsersModule
+    UsersModule,
+    ConcurrencyModule
   ],
   providers: [
     GrainSensorService,

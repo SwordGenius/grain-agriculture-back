@@ -1,3 +1,4 @@
+// src/stadistics/stadistics.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StatisticsController } from './stadistics.controller';
@@ -6,12 +7,15 @@ import { GrainSensorSchema } from '../grain-sensor/schemas/grainSensor.schema';
 import { ZTableUtil } from './z-table.util';
 import { StatisticsUtil } from './statistics.util';
 import { UsersModule } from '../users/users.module';
+import { ConcurrencyModule } from '../common/concurrency/concurrency.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'GrainSensor', schema: GrainSensorSchema }
-    ]), UsersModule
+    ]), 
+    UsersModule,
+    ConcurrencyModule
   ],
   controllers: [StatisticsController],
   providers: [
