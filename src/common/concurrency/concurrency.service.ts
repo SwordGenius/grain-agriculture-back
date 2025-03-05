@@ -134,11 +134,11 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
   
   // Ejecutar una tarea en un worker
   async runInWorker<T>(taskFn: Function | string, data?: any): Promise<T> {
-    return this.workerPool.runTask<T>(taskFn, data);
+    return this.workerPool.runTask<T>(taskFn as Function, data);
   }
   
   // Ejecutar múltiples tareas en paralelo con workers
   async runTasksInParallel<T>(tasks: Array<{ task: Function | string, data?: any }>): Promise<T[]> {
-    return this.workerPool.runTasks<T>(tasks);
+    return this.workerPool.runTasks<T>(tasks.map(t => ({ task: t.task as Function, data: t.data })));
   }
 }
