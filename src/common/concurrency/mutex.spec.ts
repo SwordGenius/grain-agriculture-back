@@ -1,4 +1,3 @@
-// src/common/concurrency/mutex.spec.ts
 import { Mutex } from './mutex';
 
 describe('Mutex', () => {

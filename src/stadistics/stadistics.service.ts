@@ -1,4 +1,3 @@
-// src/stadistics/stadistics.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Stadistics, Limits, SensorStats } from './interfaces/stadistics.interface';

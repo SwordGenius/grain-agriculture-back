@@ -1,4 +1,3 @@
-// src/common/concurrency/mutex.ts
 export class Mutex {
     private locked: boolean = false;
     private waitingQueue: (() => void)[] = [];
@@ -11,7 +10,6 @@ export class Mutex {
           const nextResolver = this.waitingQueue.shift();
           nextResolver();
         } else {
-          // Si no hay nadie esperando, simplemente liberar el lock
           this.locked = false;
         }
       };

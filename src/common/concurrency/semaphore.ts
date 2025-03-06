@@ -1,4 +1,3 @@
-// src/common/concurrency/semaphore.ts
 export class Semaphore {
     private counter: number;
     private waitingQueue: (() => void)[] = [];
@@ -8,7 +7,6 @@ export class Semaphore {
     }
   
     async acquire(): Promise<() => void> {
-      // Función release que será devuelta
       const release = () => {
         this.counter++;
         if (this.waitingQueue.length > 0 && this.counter > 0) {

@@ -1,4 +1,3 @@
-// src/common/concurrency/semaphore.spec.ts
 import { Semaphore } from './semaphore';
 
 describe('Semaphore', () => {

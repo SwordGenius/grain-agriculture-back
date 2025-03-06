@@ -1,4 +1,3 @@
-// src/common/concurrency/barrier.ts
 export class Barrier {
     private count: number;
     private waiting: Array<() => void> = [];

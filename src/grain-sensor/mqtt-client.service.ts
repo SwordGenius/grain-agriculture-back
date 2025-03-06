@@ -1,4 +1,3 @@
-// src/grain-sensor/mqtt-client.service.ts
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
 import { GrainSensorService } from './grain-sensor.service';

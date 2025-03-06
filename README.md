@@ -158,9 +158,3 @@ src/common/concurrency/
 - Monitorear el rendimiento para detectar posibles cuellos de botella
 - Implementar manejo de errores adecuado en operaciones concurrentes
 - Usar primitivas apropiadas según el tipo de recurso a proteger
-
-## Referencias y Documentación
-
-- [NestJS Documentation](https://docs.nestjs.com/)
-- [Node.js Worker Threads](https://nodejs.org/api/worker_threads.html)
-- [Handling Concurrency in Node.js](https://blog.appsignal.com/2022/10/12/handling-concurrent-requests-in-nodejs.html)

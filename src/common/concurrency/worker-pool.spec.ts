@@ -1,4 +1,3 @@
-// src/common/concurrency/worker-pool.spec.ts
 import { WorkerPool } from './worker-pool';
 
 // Nota: Estas pruebas simulan workers sin depender de worker_threads reales

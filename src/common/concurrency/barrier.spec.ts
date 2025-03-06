@@ -1,4 +1,3 @@
-// src/common/concurrency/barrier.spec.ts
 import { Barrier } from './barrier';
 
 describe('Barrier', () => {

@@ -1,4 +1,3 @@
-// src/common/concurrency/worker-pool.ts
 import { Worker } from 'worker_threads';
 import * as path from 'path';
 import { Semaphore } from './semaphore';

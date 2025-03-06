@@ -1,4 +1,3 @@
-// src/grain-sensor/grain-sensor.module.ts
 import { Module } from '@nestjs/common';
 import { GrainSensorService } from './grain-sensor.service';
 import { GrainSensorController } from './grain-sensor.controller';
