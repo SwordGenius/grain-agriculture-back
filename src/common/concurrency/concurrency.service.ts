@@ -6,48 +6,44 @@ import { WorkerPool } from './worker-pool';
 
 @Injectable()
 export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
-  // Diferentes instancias de mutex para diferentes recursos
+  // Colección de mutex para diferentes recursos
   private mutexes: Map<string, Mutex> = new Map();
   
-  // Semáforos para controlar acceso concurrente a recursos limitados
+  // Semáforos para controlar acceso concurrente
   private semaphores: Map<string, Semaphore> = new Map();
   
   // Barreras para sincronización
   private barriers: Map<string, Barrier> = new Map();
   
-  // Pool de workers para procesamiento en paralelo
+  // Pool para procesar cosas en paralelo
   private workerPool: WorkerPool;
 
   constructor() {
-    // Inicializar el pool de workers con 4 workers por defecto
-    // Este número puede ajustarse según las necesidades del sistema
+    // Creo un pool con 4 workers por ahora, podría parametrizarse
     this.workerPool = new WorkerPool(4);
   }
 
   onModuleInit() {
-    // Crear algunos recursos por defecto
     this.createMutex('database');
     this.createMutex('mqtt');
     this.createMutex('statistics');
     
-    // Semáforo para limitar las consultas a la base de datos
     this.createSemaphore('database-queries', 10);
     
-    // Semáforo para limitar las conexiones de websocket
+    // Limito conexiones de websockets
     this.createSemaphore('websocket-connections', 100);
     
-    // Barrera para la sincronización de cálculos estadísticos
+    // Barrera para sincronizar cálculos estadísticos
     this.createBarrier('statistics-sync', 3);
   }
 
   async onModuleDestroy() {
-    // Limpiar recursos al apagar la aplicación
+    // Limpieza para evitar memory leaks
     await this.workerPool.terminate();
   }
 
   // MÉTODOS PARA MUTEX
   
-  // Crear un nuevo mutex
   createMutex(name: string): Mutex {
     if (this.mutexes.has(name)) {
       return this.mutexes.get(name);
@@ -58,7 +54,6 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
     return mutex;
   }
   
-  // Obtener un mutex existente
   getMutex(name: string): Mutex {
     if (!this.mutexes.has(name)) {
       return this.createMutex(name);
@@ -67,7 +62,6 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
     return this.mutexes.get(name);
   }
   
-  // Ejecutar una función con exclusión mutua
   async withMutex<T>(name: string, fn: () => Promise<T> | T): Promise<T> {
     const mutex = this.getMutex(name);
     return mutex.runExclusive(fn);
@@ -75,7 +69,6 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
   
   // MÉTODOS PARA SEMÁFORO
   
-  // Crear un nuevo semáforo
   createSemaphore(name: string, maxConcurrent: number): Semaphore {
     if (this.semaphores.has(name)) {
       return this.semaphores.get(name);
@@ -86,7 +79,6 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
     return semaphore;
   }
   
-  // Obtener un semáforo existente
   getSemaphore(name: string): Semaphore {
     if (!this.semaphores.has(name)) {
       throw new Error(`Semaphore ${name} does not exist`);
@@ -95,13 +87,11 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
     return this.semaphores.get(name);
   }
   
-  // Ejecutar una función con un semáforo
   async withSemaphore<T>(name: string, fn: () => Promise<T> | T): Promise<T> {
     const semaphore = this.getSemaphore(name);
     return semaphore.runWithSemaphore(fn);
   }
   
-  // Ejecutar múltiples tareas en paralelo respetando el límite del semáforo
   async withConcurrencyLimit<T>(name: string, tasks: (() => Promise<T>)[]): Promise<T[]> {
     const semaphore = this.getSemaphore(name);
     return semaphore.runConcurrent(tasks);
@@ -109,7 +99,6 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
   
   // MÉTODOS PARA BARRERA
   
-  // Crear una nueva barrera
   createBarrier(name: string, parties: number): Barrier {
     if (this.barriers.has(name)) {
       return this.barriers.get(name);
@@ -120,7 +109,6 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
     return barrier;
   }
   
-  // Obtener una barrera existente
   getBarrier(name: string): Barrier {
     if (!this.barriers.has(name)) {
       throw new Error(`Barrier ${name} does not exist`);
@@ -131,12 +119,10 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
   
   // MÉTODOS PARA WORKER POOL
   
-  // Ejecutar una tarea en un worker
   async runInWorker<T>(taskFn: Function | string, data?: any): Promise<T> {
     return this.workerPool.runTask<T>(taskFn as Function, data);
   }
   
-  // Ejecutar múltiples tareas en paralelo con workers
   async runTasksInParallel<T>(tasks: Array<{ task: Function | string, data?: any }>): Promise<T[]> {
     return this.workerPool.runTasks<T>(tasks.map(t => ({ task: t.task as Function, data: t.data })));
   }

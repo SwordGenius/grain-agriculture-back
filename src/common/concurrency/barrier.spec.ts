@@ -1,6 +1,11 @@
 import { Barrier } from './barrier';
 
 describe('Barrier', () => {
+  /**
+   * Test que verifica la sincronización de múltiples tareas con la barrera.
+   * Se crean 3 tareas que llegan en diferentes momentos, pero todas deben
+   * esperar hasta que la última llegue para continuar su ejecución.
+   */
   it('should synchronize multiple tasks', async () => {
     const barrier = new Barrier(3);
     const arrivals = [];
@@ -34,21 +39,25 @@ describe('Barrier', () => {
     // Esperamos a que todas las tareas se completen
     await Promise.all(promises);
     
-    // Verificamos que todas las tareas llegaron a la barrera en orden diferente
+    // Verificamos que llegaron en orden diferente
     expect(arrivals).toEqual([1, 2, 3]);
     
-    // Pero todas partieron al mismo tiempo después de que la última llegó
-    // El orden exacto de departure puede variar, pero todas las tareas deberían estar presentes
+    // Pero todas partieron juntas después de la última llegada
     expect(departures.sort()).toEqual([1, 2, 3]);
   });
 
+  /**
+   * Test que verifica el correcto seguimiento de tareas en espera.
+   * Comprueba que el contador de tareas en espera se incremente y
+   * se reinicie correctamente cuando todas las tareas cruzan la barrera.
+   */
   it('should track waiting parties correctly', async () => {
     const barrier = new Barrier(4);
     
     // Inicialmente no hay nadie esperando
     expect(barrier.getNumberWaiting()).toBe(0);
     
-    // Simulamos que las tareas llegan a la barrera
+    // Simulamos llegadas progresivas
     const arrive1 = barrier.await().then(() => {});
     expect(barrier.getNumberWaiting()).toBe(1);
     
@@ -58,17 +67,22 @@ describe('Barrier', () => {
     const arrive3 = barrier.await().then(() => {});
     expect(barrier.getNumberWaiting()).toBe(3);
     
-    // Todavía no tenemos todas las partes, así que las promesas no resuelven
+    // Todavía no tenemos todas las partes, nadie debería continuar
     await new Promise(resolve => setTimeout(resolve, 10));
     
-    // La última parte llega y todas cruzan la barrera
+    // La última tarea llega y todas cruzan la barrera
     await barrier.await();
     expect(barrier.getNumberWaiting()).toBe(0);
     
-    // Asegurarnos de que todas las promesas se resolvieron
+    // Verificamos que todas las promesas se resolvieron
     await Promise.all([arrive1, arrive2, arrive3]);
   });
 
+  /**
+   * Test que verifica el incremento de generación cuando se cruza la barrera.
+   * La generación es un contador que se incrementa cada vez que todas las tareas
+   * cruzan la barrera, permitiendo su reutilización.
+   */
   it('should increment generation when barrier is crossed', async () => {
     const barrier = new Barrier(2);
     
@@ -90,6 +104,11 @@ describe('Barrier', () => {
     expect(barrier.getGeneration()).toBe(2);
   });
 
+  /**
+   * Test que verifica el comportamiento del método reset().
+   * Este método reinicia la barrera, permitiendo liberar a las tareas en espera
+   * y preparando la barrera para un nuevo ciclo de uso.
+   */
   it('should properly reset the barrier', async () => {
     const barrier = new Barrier(3);
     
@@ -116,6 +135,12 @@ describe('Barrier', () => {
     expect(barrier.getGeneration()).toBe(2);
   });
 
+  /**
+   * Test de estrés que verifica el comportamiento de la barrera
+   * bajo condiciones de alta concurrencia. Es importante comprobar
+   * que no se producen race conditions cuando múltiples tareas
+   * cruzan la barrera simultáneamente.
+   */
   it('should handle concurrent barrier crossings in stress test', async () => {
     const numParties = 10;
     const barrier = new Barrier(numParties);
@@ -126,8 +151,6 @@ describe('Barrier', () => {
       await barrier.await();
       
       // Después de cruzar la barrera, incrementamos el contador
-      // Si la barrera funciona correctamente, todos los incrementos ocurrirán
-      // aproximadamente al mismo tiempo, evitando race conditions
       counter++;
     };
     
@@ -137,7 +160,7 @@ describe('Barrier', () => {
     // Esperar a que todas completen
     await Promise.all(tasks);
     
-    // Verificar que todas las tareas incremetaron el contador
+    // Verificar que todas las tareas incrementaron el contador
     expect(counter).toBe(numParties);
   });
 });

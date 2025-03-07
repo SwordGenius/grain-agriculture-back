@@ -1,6 +1,5 @@
 import { WorkerPool } from './worker-pool';
 
-// Nota: Estas pruebas simulan workers sin depender de worker_threads reales
 jest.setTimeout(10000);
 
 describe('WorkerPool', () => {
@@ -14,6 +13,11 @@ describe('WorkerPool', () => {
     await workerPool.terminate();
   });
 
+  /**
+   * Test básico que verifica la ejecución de tareas en workers.
+   * El pool debe ejecutar correctamente funciones con sus argumentos
+   * y devolver los resultados.
+   */
   it('should execute tasks in worker threads', async () => {
     const result = await workerPool.runTask<number>((data) => {
       return data.a + data.b;
@@ -22,6 +26,11 @@ describe('WorkerPool', () => {
     expect(result).toBe(12);
   });
 
+  /**
+   * Test que verifica el manejo de errores en los workers.
+   * Si una tarea lanza una excepción, el pool debe propagarla
+   * correctamente al código que llamó a la tarea.
+   */
   it('should handle errors in worker threads', async () => {
     const errorTask = () => {
       throw new Error('Worker error');
@@ -30,45 +39,47 @@ describe('WorkerPool', () => {
     await expect(workerPool.runTask(errorTask)).rejects.toThrow('Worker error');
   });
 
+  /**
+   * Test que verifica la ejecución paralela de múltiples tareas.
+   * Las tareas deberían ejecutarse simultáneamente, reduciendo
+   * el tiempo total de ejecución comparado con ejecución secuencial.
+   */
   it('should execute multiple tasks in parallel', async () => {
     const startTime = Date.now();
 
     const tasks = [
       { 
-        task: (data) => {
-          return new Promise(resolve => setTimeout(() => resolve(1), 100));
-        }
+        task: () => new Promise(resolve => setTimeout(() => resolve(1), 100))
       },
       { 
-        task: (data) => {
-          return new Promise(resolve => setTimeout(() => resolve(2), 100));
-        }
+        task: () => new Promise(resolve => setTimeout(() => resolve(2), 100))
       },
       { 
-        task: (data) => {
-          return new Promise(resolve => setTimeout(() => resolve(3), 100));
-        }
+        task: () => new Promise(resolve => setTimeout(() => resolve(3), 100))
       },
       { 
-        task: (data) => {
-          return new Promise(resolve => setTimeout(() => resolve(4), 100));
-        }
+        task: () => new Promise(resolve => setTimeout(() => resolve(4), 100))
       }
     ];
 
     const results = await workerPool.runTasks(tasks);
     const endTime = Date.now();
 
-    // Verificar que todas las tareas se ejecutaron
+    // Verificar resultados correctos
     expect(results).toEqual([1, 2, 3, 4]);
 
-    // Verificar que se ejecutaron en paralelo (deberían tardar aproximadamente 100ms, no 400ms)
+    // Verificar paralelismo: debería tardar ~100ms, no 400ms
     expect(endTime - startTime).toBeLessThan(300);
   });
 
+  /**
+   * Test que verifica el manejo de tareas CPU-intensivas.
+   * El worker pool debe ser capaz de ejecutar cálculos
+   * que consumen CPU sin bloquear el hilo principal.
+   */
   it('should handle CPU-intensive tasks', async () => {
-    // Esta prueba cuenta los números primos hasta 100
-    const countPrimes = (data) => {
+    // Cálculo de números primos hasta 100
+    const countPrimes = () => {
       const max = 100;
       let count = 0;
       
@@ -96,11 +107,16 @@ describe('WorkerPool', () => {
     expect(result).toBe(25);
   });
 
+  /**
+   * Test que verifica la limitación de concurrencia basada en el tamaño del pool.
+   * Si el pool tiene N workers, no debería ejecutar más de N tareas simultáneamente,
+   * sino encolar las adicionales hasta que haya workers disponibles.
+   */
   it('should limit concurrent execution based on pool size', async () => {
     // Crear un pool con solo 2 workers
     const smallPool = new WorkerPool(2);
     
-    // Esta función simplemente devuelve su ID de tarea
+    // Esta función simplemente devuelve su ID
     const taskFn = (data) => {
       return data.taskId;
     };
@@ -116,7 +132,7 @@ describe('WorkerPool', () => {
     
     const results = await smallPool.runTasks(tasks);
     
-    // Verificar que todas las tareas se completaron y tienen los IDs correctos
+    // Verificar que todas se completaron con los IDs correctos
     const sortedResults = [...results].sort((a, b) => {
       if (typeof a === 'number' && typeof b === 'number') {
         return a - b;

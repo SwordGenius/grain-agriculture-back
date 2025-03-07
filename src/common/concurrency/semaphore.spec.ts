@@ -1,6 +1,11 @@
 import { Semaphore } from './semaphore';
 
 describe('Semaphore', () => {
+  /**
+   * Test que verifica la ejecución concurrente limitada por el semáforo.
+   * El semáforo debe permitir que se ejecuten hasta N tareas simultáneamente,
+   * donde N es el valor configurado en su constructor.
+   */
   it('should allow concurrent execution up to the limit', async () => {
     const semaphore = new Semaphore(3);
     let runningTasks = 0;
@@ -30,6 +35,11 @@ describe('Semaphore', () => {
     expect(results.length).toBe(10);
   });
 
+  /**
+   * Test que verifica la liberación de permisos incluso cuando una tarea falla.
+   * Es crucial que los permisos se liberen para evitar deadlocks cuando
+   * las tareas fallan con excepciones.
+   */
   it('should release permits even if task throws error', async () => {
     const semaphore = new Semaphore(2);
     
@@ -55,7 +65,7 @@ describe('Semaphore', () => {
       // La tarea falló, pero el permiso debería liberarse
     }
     
-    // Verificamos que el permiso se liberó correctamente a pesar del error
+    // Verificamos que el permiso se liberó correctamente
     expect(semaphore.availableSlots()).toBe(1);
     
     // Liberamos el segundo permiso
@@ -65,6 +75,11 @@ describe('Semaphore', () => {
     expect(semaphore.availableSlots()).toBe(2);
   });
 
+  /**
+   * Test que verifica el manejo correcto de múltiples tareas en espera.
+   * Las tareas deberían procesarse en orden FIFO cuando los permisos
+   * están limitados y hay más solicitudes que permisos disponibles.
+   */
   it('should handle multiple waiting tasks correctly', async () => {
     const semaphore = new Semaphore(1);
     let taskOrder = [];
@@ -97,7 +112,7 @@ describe('Semaphore', () => {
     // Esperamos a que todas las tareas se completen
     await Promise.all([task1, task2, task3]);
     
-    // Verificamos que las tareas se ejecutaron en el orden en que se encolaron
+    // Verificamos que se ejecutaron en orden FIFO
     expect(taskOrder).toEqual([1, 2, 3]);
     
     // Verificamos que no hay más tareas esperando
@@ -107,12 +122,17 @@ describe('Semaphore', () => {
     expect(semaphore.availableSlots()).toBe(1);
   });
   
+  /**
+   * Test que verifica la ejecución concurrente de tareas con límite.
+   * El método runConcurrent debe ejecutar múltiples tareas respetando
+   * el límite de concurrencia establecido por el semáforo.
+   */
   it('should run tasks concurrently with limit', async () => {
     const semaphore = new Semaphore(3);
     const startTimes = [];
     const endTimes = [];
     
-    // Creamos 6 tareas que registrarán sus tiempos de inicio y fin
+    // Creamos 6 tareas que registran sus tiempos
     const tasks = Array(6).fill(0).map((_, index) => async () => {
       startTimes[index] = Date.now();
       // Cada tarea toma un tiempo fijo
@@ -127,11 +147,11 @@ describe('Semaphore', () => {
     // Verificamos que todas las tareas se completaron
     expect(results).toEqual([0, 1, 2, 3, 4, 5]);
     
-    // Verificamos que las primeras 3 tareas comenzaron aproximadamente al mismo tiempo
+    // Las primeras 3 tareas deberían iniciar casi simultáneamente
     const firstBatchStartDiff = Math.max(...startTimes.slice(0, 3)) - Math.min(...startTimes.slice(0, 3));
-    expect(firstBatchStartDiff).toBeLessThan(50); // Margen de error de 50ms
+    expect(firstBatchStartDiff).toBeLessThan(50); // Margen de error razonable
     
-    // Verificamos que la segunda tanda de tareas comenzó después de que terminó alguna de la primera tanda
+    // La segunda tanda debería comenzar después de que termine alguna de la primera
     const firstBatchMinEnd = Math.min(...endTimes.slice(0, 3));
     const secondBatchMaxStart = Math.max(...startTimes.slice(3));
     expect(secondBatchMaxStart).toBeGreaterThanOrEqual(firstBatchMinEnd);
