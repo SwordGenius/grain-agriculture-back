@@ -33,7 +33,7 @@ export class ConcurrencyService implements OnModuleInit, OnModuleDestroy {
     // Limito conexiones de websockets
     this.createSemaphore('websocket-connections', 100);
     
-    // Barrera para sincronizar cálculos estadísticos
+    // Barrera para sincronizar cálculos estadísticos (Pendiente revision de adrian)
     this.createBarrier('statistics-sync', 3);
   }
 

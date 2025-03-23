@@ -10,12 +10,10 @@ export class Barrier {
 
   // Espera a que todas las partes lleguen a la barrera
   async await(): Promise<number> {
-    // Guardo la generación actual para verificar después
     const myGeneration = this.generation;
     this.count--;
 
     if (this.count === 0) {
-      // Somos el último en llegar, hay que liberar a todos
       this.count = this.parties;
       this.generation++;
       
@@ -33,7 +31,7 @@ export class Barrier {
     }
   }
 
-  // Resetea la barrera (útil si alguna tarea se cuelga)
+  // Resetea la barrera 
   reset(): void {
     this.count = this.parties;
     this.generation++;

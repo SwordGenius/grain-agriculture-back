@@ -3,7 +3,6 @@ import * as path from 'path';
 import { Semaphore } from './semaphore';
 
 // Clase para simular un WorkerPool en entorno Node.js
-// NOTA: Esta implementación es una versión simplificada para pruebas
 export class WorkerPool {
   private semaphore: Semaphore;
   private taskQueue: {
@@ -19,12 +18,10 @@ export class WorkerPool {
   }
 
   // Método simplificado que ejecuta la tarea en el mismo hilo
-  // En un entorno real, esto se ejecutaría en worker_threads
   async runTask<T>(taskFn: Function, data?: any): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       try {
         // Ejecutamos la tarea en el mismo hilo para simplificar
-        // En producción, esto se ejecutaría en un worker thread
         const result = taskFn(data);
         resolve(result);
       } catch (error) {
@@ -53,9 +50,7 @@ export class WorkerPool {
     return results;
   }
 
-  // Método para limpiar recursos
   async terminate(): Promise<void> {
-    // En una implementación real, terminaríamos los workers
     return Promise.resolve();
   }
 }
