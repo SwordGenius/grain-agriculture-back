@@ -22,25 +22,18 @@ export class StadisticsGateway implements OnGatewayInit, OnGatewayConnection, On
   @WebSocketServer()
   server: Server;
 
-  afterInit() {
-    console.log('WebSocket Stadistics gateway initialized');
-  }
+  afterInit() {}
 
-  handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
-  }
+  handleConnection(client: Socket) {}
 
-  handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
-  }
+  handleDisconnect(client: Socket) {}
+
   emitStadisticsData(data: Stadistics) {
-    console.log('\n[Statistics Data Received]:', JSON.stringify(data, null, 2));
     this.server.emit('stadisticsData', data);
   }
 
   @SubscribeMessage('stadisticsData')
   handleStadisticsData(client: Socket, data: Stadistics) {
-    console.log('\n[Statistics Data Received from Client]:', JSON.stringify(data, null, 2));
     this.server.emit('stadisticsData', data);
   }
 }
