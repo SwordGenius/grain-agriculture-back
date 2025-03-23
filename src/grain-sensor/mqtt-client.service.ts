@@ -89,21 +89,23 @@ export class MqttClientService implements OnModuleInit {
   }
 
   private async handleMessage(topic: string, message: string) {
-    // Usamos un mutex para proteger contra actualizaciones concurrentes a la BD
     return this.concurrencyService.withMutex('mqtt', async () => {
       this.logger.log(`Processing message from ${topic}`);
       
       try {
         let data = JSON.parse(message);
         data = {
-          temperature_inside: data.temperaturaInterna,
+          temperature_inside: data.temperatura,
           temperature_outside: data.temperaturaDHT,
-          humidity: data.humedadDHT,
+          humidity: data.humedad,
           gas: data.valorGas,
-          movement_1: data.sensorVibracion1,
-          movement_2: data.sensorVibracion2,
+          movement_1: data.vibracion1,
+          movement_2: data.vibracion2,
           date: new Date(),
         };
+        
+        // Log complete data
+        this.logger.log('Processed sensor data:', JSON.stringify(data, null, 2));
         
         // Emitimos los datos a través del websocket
         this.sensorGateway.emitGrainSensorData(data);
@@ -115,7 +117,7 @@ export class MqttClientService implements OnModuleInit {
         }
       } catch (error) {
         this.logger.error(`Failed to handle message: ${error.message}`);
-        throw error; // Re-lanzamos para que el semáforo pueda manejar el error
+        throw error;
       }
     });
   }

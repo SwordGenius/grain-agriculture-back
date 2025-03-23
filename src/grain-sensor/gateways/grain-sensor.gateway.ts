@@ -38,10 +38,13 @@ export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   }
 
   emitGrainSensorData(data: CreateGrainSensorDto) {
+    console.log('\n[Grain Sensor Data Received]:', JSON.stringify(data, null, 2));
     this.server.emit('grainSensorData', data);
   }
+
   @SubscribeMessage('grainSensorData')
   handleGrainSensorData(client: Socket, data: CreateGrainSensorDto) {
+    console.log('\n[Grain Sensor Data Received from Client]:', JSON.stringify(data, null, 2));
     this.server.emit('grainSensorData', data);
   }
 }

@@ -34,10 +34,13 @@ export class StadisticsGateway implements OnGatewayInit, OnGatewayConnection, On
     console.log(`Client disconnected: ${client.id}`);
   }
   emitStadisticsData(data: Stadistics) {
+    console.log('\n[Statistics Data Received]:', JSON.stringify(data, null, 2));
     this.server.emit('stadisticsData', data);
   }
+
   @SubscribeMessage('stadisticsData')
   handleStadisticsData(client: Socket, data: Stadistics) {
+    console.log('\n[Statistics Data Received from Client]:', JSON.stringify(data, null, 2));
     this.server.emit('stadisticsData', data);
   }
 }
