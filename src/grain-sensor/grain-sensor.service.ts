@@ -16,11 +16,25 @@ export class GrainSensorService {
     return await createdGrainSensor.save();
   }
 
-  async findAll(limit: number, skip: number): Promise<GrainSensor[]> {
-    if (limit && skip) {
-      return this.grainSensorModel.find().limit(limit).skip(skip).exec();
+  async findAll(limit?: number, page?: number): Promise<any[]> {
+    try {
+      let query = this.grainSensorModel.find().sort({ date: -1 });
+      
+      if (limit && page) {
+        const skip = (page - 1) * limit;
+        query = query.skip(skip).limit(limit);
+      } else if (limit) {
+        query = query.limit(limit);
+      }
+      
+      const results = await query.exec();
+      
+      // If no results, return empty array instead of throwing 404
+      return results || [];
+    } catch (error) {
+      console.error('Error fetching grain sensor data:', error);
+      return []; // Return empty array instead of throwing error
     }
-    return this.grainSensorModel.find().exec();
   }
 
   async findOne(id: string): Promise<GrainSensor> {

@@ -90,34 +90,28 @@ export class MqttClientService implements OnModuleInit {
 
   private async handleMessage(topic: string, message: string) {
     return this.concurrencyService.withMutex('mqtt', async () => {
-      this.logger.log(`Processing message from ${topic}`);
-      
       try {
         let data = JSON.parse(message);
         data = {
-          temperature_inside: data.temperatura,
-          temperature_outside: data.temperaturaDHT,
-          humidity: data.humedad,
-          gas: data.valorGas,
-          movement_1: data.vibracion1,
-          movement_2: data.vibracion2,
+          temperature_inside: data.temperatura || 0,
+          temperature_outside: data.temperatura || 0,
+          humidity: data.humedad || 0,
+          gas: data.valorGas || 0,
+          movement_1: data.vibracion1 || 0,
+          movement_2: data.vibracion2 || 0,
           date: new Date(),
         };
-        
-        // Log complete data
-        this.logger.log('Processed sensor data:', JSON.stringify(data, null, 2));
         
         // Emitimos los datos a través del websocket
         this.sensorGateway.emitGrainSensorData(data);
         
-        // Guardamos en BD si es el momento adecuado
-        if (data.date.getMinutes() === 0 && data.date.getSeconds() === 0) {
+        // Guardamos en BD cada 5 segundos
+        if (data.date.getSeconds() % 5 === 0) {
           await this.sensorService.create(data);
           this.logger.log('Sensor data saved to database');
         }
       } catch (error) {
         this.logger.error(`Failed to handle message: ${error.message}`);
-        throw error;
       }
     });
   }

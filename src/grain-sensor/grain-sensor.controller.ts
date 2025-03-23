@@ -47,20 +47,16 @@ export class GrainSensorController {
         limitValue,
         pageValue,
       );
-      const data = {
-        message: 'GrainSensor has been found successfully',
+      
+      // Return success even if array is empty
+      return res.status(200).json({
+        message: grainSensors.length > 0 ? 'GrainSensor data found successfully' : 'No sensor data available yet',
         data: grainSensors,
-      };
-
-      if (grainSensors.length === 0) {
-        return res.status(404).json({
-          message: 'GrainSensor not found',
-        });
-      }
-      return res.status(200).json(data);
+        count: grainSensors.length
+      });
     } catch (error) {
       return res.status(500).json({
-        message: 'Error: GrainSensor not found',
+        message: 'Error retrieving grain sensor data',
         error: error.message,
       });
     }
