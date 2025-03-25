@@ -20,6 +20,19 @@
   <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
 </p>
 
+# SwordGenius Grain Agriculture Backend
+
+Sistema backend para monitoreo de sensores agrícolas, implementado en NestJS con MongoDB y comunicación en tiempo real mediante WebSockets y MQTT.
+
+## Características del Sistema
+
+- Autenticación de usuarios con JWT
+- Gestión de sensores de granos
+- Estadísticas y predicciones de movimiento
+- Comunicación en tiempo real mediante WebSockets
+- Integración con sensores IoT mediante MQTT
+- Sistema de concurrencia avanzado
+
 ## MongoDB con Docker
 
 ```bash
@@ -37,3 +50,111 @@ Esto inicia:
 # Iniciar en modo desarrollo
 npm run start:dev
 ```
+
+# Sistema de Concurrencia
+
+El backend implementa un sistema avanzado de concurrencia basado en el modelo de **Event-based Concurrency** optimizado para Node.js, utilizando cuatro primitivas principales:
+
+## Primitivas de Concurrencia Implementadas
+
+### 1. Mutex/Locks
+
+Los mutex permiten la exclusión mutua al acceder a recursos compartidos, garantizando que solo un proceso pueda modificar datos críticos a la vez.
+
+```typescript
+// Ejemplo de uso
+await concurrencyService.withMutex('database', async () => {
+  // Operación que requiere acceso exclusivo
+  await databaseOperation();
+});
+```
+
+### 2. Semáforos
+
+Los semáforos controlan el número máximo de operaciones concurrentes que pueden ejecutarse simultáneamente, evitando la sobrecarga del sistema.
+
+```typescript
+// Ejemplo de uso con límite de 5 operaciones concurrentes
+const tasks = [task1, task2, task3, ...];
+await concurrencyService.withConcurrencyLimit('database-queries', tasks);
+```
+
+### 3. Barreras de Sincronización
+
+Las barreras permiten sincronizar múltiples procesos, haciendo que todos esperen hasta que cada uno alcance un punto determinado.
+
+```typescript
+// Ejemplo: Esperar a que 3 procesos lleguen a un punto de sincronización
+const barrier = concurrencyService.getBarrier('statistics-sync');
+await barrier.await(); // Espera a que todos los procesos lleguen
+```
+
+### 4. Worker Threads Pool
+
+El pool de workers permite ejecutar tareas CPU-intensivas en hilos separados, evitando bloquear el event loop principal de Node.js.
+
+```typescript
+// Ejemplo: Ejecutar cálculo intensivo en worker thread
+const result = await concurrencyService.runInWorker((data) => {
+  // Cálculo intensivo aquí
+  return complexCalculation(data);
+}, inputData);
+```
+
+## Servicios Optimizados
+
+Hemos optimizado los siguientes servicios con concurrencia:
+
+1. **StatisticsService**: Procesamiento paralelo de cálculos estadísticos
+2. **MqttClientService**: Manejo concurrente de mensajes de sensores
+3. **GrainSensorService**: Procesamiento de datos de sensores con protección de recursos
+
+## Pruebas Unitarias de Concurrencia
+
+El sistema incluye pruebas unitarias completas para validar el funcionamiento de las primitivas de concurrencia:
+
+```bash
+# Ejecutar todas las pruebas
+npm test
+
+# Ejecutar pruebas específicas
+npm test -- -t 'Mutex'
+npm test -- -t 'Semaphore'
+npm test -- -t 'Barrier'
+npm test -- -t 'WorkerPool'
+```
+
+### ¿Qué prueban estas pruebas?
+
+- **Mutex**: Exclusión mutua, prevención de race conditions y liberación correcta de recursos
+- **Semaphore**: Limitación de concurrencia y gestión de colas de espera
+- **Barrier**: Sincronización entre múltiples procesos y manejo de generaciones
+- **WorkerPool**: Ejecución de tareas en paralelo y limitación de concurrencia
+
+## Estructura de Archivos del Sistema de Concurrencia
+
+```
+src/common/concurrency/
+├── mutex.ts                 # Implementación de Mutex
+├── semaphore.ts             # Implementación de Semáforo
+├── barrier.ts               # Implementación de Barrera de sincronización
+├── worker-pool.ts           # Implementación de Pool de Workers
+├── concurrency.module.ts    # Módulo NestJS para concurrencia
+├── concurrency.service.ts   # Servicio que integra todas las primitivas
+└── tests/                   # Pruebas unitarias para cada primitiva
+```
+
+## Beneficios del Sistema de Concurrencia
+
+1. **Mayor rendimiento**: Procesamiento paralelo de tareas CPU-intensivas
+2. **Mejor escalabilidad**: Manejo eficiente de picos de carga
+3. **Prevención de bloqueos**: El event loop principal no se bloquea
+4. **Protección de datos**: Se evitan race conditions en accesos concurrentes
+5. **Eficiencia en recursos**: Control de límites de uso de CPU y memoria
+
+## Recomendaciones de Uso
+
+- Ajustar los límites de concurrencia según las capacidades del servidor
+- Monitorear el rendimiento para detectar posibles cuellos de botella
+- Implementar manejo de errores adecuado en operaciones concurrentes
+- Usar primitivas apropiadas según el tipo de recurso a proteger

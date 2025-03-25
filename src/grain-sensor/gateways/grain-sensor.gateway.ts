@@ -23,23 +23,18 @@ export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @WebSocketServer()
   server: Server;
 
-  afterInit() {
-
-    console.log('WebSocket Grain Sensor gateway initialized');
-  }
+  afterInit() {}
 
   handleConnection(client: Socket) {
     WsMiddleware(client);
-    console.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
-  }
+  handleDisconnect(client: Socket) {}
 
   emitGrainSensorData(data: CreateGrainSensorDto) {
     this.server.emit('grainSensorData', data);
   }
+
   @SubscribeMessage('grainSensorData')
   handleGrainSensorData(client: Socket, data: CreateGrainSensorDto) {
     this.server.emit('grainSensorData', data);

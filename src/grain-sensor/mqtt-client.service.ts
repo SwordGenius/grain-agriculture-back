@@ -3,6 +3,7 @@ import { connect, MqttClient } from 'mqtt';
 import { GrainSensorService } from './grain-sensor.service';
 import { ConfigEnvService } from '../config-env/config.service';
 import { SensorGateway } from './gateways/grain-sensor.gateway';
+import { ConcurrencyService } from '../common/concurrency/concurrency.service';
 
 @Injectable()
 export class MqttClientService implements OnModuleInit {
@@ -10,11 +11,14 @@ export class MqttClientService implements OnModuleInit {
   private topic: string;
   private brokerUrl: string;
   private readonly logger = new Logger(MqttClientService.name);
+  private readonly messageQueue: string[] = [];
+  private isProcessing: boolean = false;
 
   constructor(
     private readonly sensorService: GrainSensorService,
     private readonly configEnv: ConfigEnvService,
     private readonly sensorGateway: SensorGateway,
+    private readonly concurrencyService: ConcurrencyService,
   ) {}
 
   onModuleInit() {
@@ -43,31 +47,72 @@ export class MqttClientService implements OnModuleInit {
     });
 
     this.client.on('message', (topic, message) => {
-      console.log('Received message from topic: ', topic);
-      console.log('Message: ', message.toString());
-      this.handleMessage(topic, message.toString());
+      // En lugar de procesar el mensaje inmediatamente, lo ponemos en cola
+      this.messageQueue.push(message.toString());
+      
+      // Iniciamos el procesamiento si no está en curso
+      if (!this.isProcessing) {
+        this.processMessageQueue();
+      }
     });
   }
 
-  private async handleMessage(topic: string, message: string) {
-    this.logger.log(`Received message from ${topic}: ${message}`);
+  private async processMessageQueue() {
+    if (this.isProcessing || this.messageQueue.length === 0) return;
+    
+    this.isProcessing = true;
+    
     try {
-      let data = JSON.parse(message);
-      data = {
-        temperature_inside: data.temperaturaInterna,
-        temperature_outside: data.temperaturaDHT,
-        humidity: data.humedadDHT,
-        gas: data.valorGas,
-        movement_1: data.sensorVibracion1,
-        movement_2: data.sensorVibracion2,
-        date: new Date(),
-      };
-      this.sensorGateway.emitGrainSensorData(data);
-      if (data.date.getMinutes() === 0 && data.date.getSeconds() === 0)
-        await this.sensorService.create(data);
-      this.logger.log('Sensor data saved to database');
+      // Creamos un semáforo para limitar la cantidad de mensajes procesados concurrentemente
+      const messageSemaphore = this.concurrencyService.createSemaphore('mqtt-messages', 5);
+      
+      // Procesamos los mensajes en la cola hasta un máximo de 5 concurrentemente
+      while (this.messageQueue.length > 0) {
+        // Tomamos hasta 5 mensajes para procesar en paralelo
+        const messagesToProcess = this.messageQueue.splice(0, 5);
+        
+        // Procesamos los mensajes en paralelo con el límite del semáforo
+        await this.concurrencyService.withConcurrencyLimit('mqtt-messages', 
+          messagesToProcess.map(message => () => this.handleMessage(this.topic, message))
+        );
+      }
     } catch (error) {
-      this.logger.error(`Failed to handle message: ${error.message}`);
+      this.logger.error(`Error processing message queue: ${error.message}`);
+    } finally {
+      this.isProcessing = false;
+      
+      // Si llegaron nuevos mensajes mientras procesábamos, continuamos
+      if (this.messageQueue.length > 0) {
+        this.processMessageQueue();
+      }
     }
+  }
+
+  private async handleMessage(topic: string, message: string) {
+    return this.concurrencyService.withMutex('mqtt', async () => {
+      try {
+        let data = JSON.parse(message);
+        data = {
+          temperature_inside: data.temperatura || 0,
+          temperature_outside: data.temperatura || 0,
+          humidity: data.humedad || 0,
+          gas: data.valorGas || 0,
+          movement_1: data.vibracion1 || 0,
+          movement_2: data.vibracion2 || 0,
+          date: new Date(),
+        };
+        
+        // Emitimos los datos a través del websocket
+        this.sensorGateway.emitGrainSensorData(data);
+        
+        // Guardamos en BD cada 5 segundos
+        if (data.date.getSeconds() % 5 === 0) {
+          await this.sensorService.create(data);
+          this.logger.log('Sensor data saved to database');
+        }
+      } catch (error) {
+        this.logger.error(`Failed to handle message: ${error.message}`);
+      }
+    });
   }
 }

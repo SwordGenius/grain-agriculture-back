@@ -6,8 +6,9 @@ import { StadisticsModule } from './stadistics/stadistics.module';
 import { GrainSensorModule } from './grain-sensor/grain-sensor.module';
 import { configDotenv } from 'dotenv';
 import { ConfigEnvService } from './config-env/config.service';
-configDotenv();
+import { ConcurrencyModule } from './common/concurrency/concurrency.module';
 
+configDotenv();
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ configDotenv();
     StadisticsModule,
     UsersModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    ConcurrencyModule,
   ],
   providers: [ConfigEnvService],
   exports: [ConfigEnvService],
